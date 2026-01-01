@@ -1,0 +1,39 @@
+services:
+  palworld:
+    image: thijsvanloef/palworld-server-docker:latest
+    restart: unless-stopped
+    container_name: palworld-server
+    ports:
+      - 8211:8211/udp
+      - 27015:27015/udp
+    dns:
+      - 8.8.8.8
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - PORT=8211
+      - PLAYERS=16
+      - MULTITHREADING=true
+      - IS_MULTIPLAY=true
+      - RCON_ENABLED=true
+      - RCON_PORT=25575
+      - ADMIN_PASSWORD=adminpassword123
+      - COMMUNITY=true
+      - SERVER_NAME=fibi-server
+      - CROSSPLAY_PLATFORMS=Steam,Xbox,PS5
+      - PUBLIC_IP=147.185.221.16
+      - PUBLIC_PORT=40012
+    volumes:
+      - ./palworld_data:/palworld/
+
+  playit:
+    image: ghcr.io/playit-cloud/playit-agent:latest
+    restart: unless-stopped
+    container_name: playit-agent
+    volumes:
+      - ./playit_data:/data
+    environment:
+      - SECRET_KEY=${PLAYIT_SECRET_KEY}
+    network_mode: service:palworld
+    depends_on:
+      - palworld
